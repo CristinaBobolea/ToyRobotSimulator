@@ -18,8 +18,13 @@ namespace ToyRobotSimulator.nsHandlers
         private Grid _grid;
         private bool _isRobotInitialized;
         private InputParser _inputParser;
-        private OutputHandler _outputHandler;
+        private IOutputHandler _outputHandler;
         private Dictionary<String, HandleCommand> _commandsDictionary;
+        private bool _isFileInput;
+        private FileHandler _fileHandler;
+
+        public bool IsFileInput { get => _isFileInput;}
+        public FileHandler FileHandler { get => _fileHandler; }
 
         #endregion Fields
 
@@ -37,13 +42,15 @@ namespace ToyRobotSimulator.nsHandlers
             _robot.OnReport += OnRobotReport;
 
             _grid = grid;
+
             _isRobotInitialized = false;
 
             _inputParser = new InputParser();
-            _outputHandler = new OutputHandler();
+            _outputHandler = new ConsoleOutputHandler();
 
             _commandsDictionary = new Dictionary<String, HandleCommand>();
 
+            _commandsDictionary["file"] = HandleFile;
             _commandsDictionary["place"] = HandlePlace;
             _commandsDictionary["move"] = HandleMove;
             _commandsDictionary["left"] = HandleLeft;
@@ -184,6 +191,15 @@ namespace ToyRobotSimulator.nsHandlers
                     break;
             }
             return isPositionCreated;
+        }
+
+
+        private void HandleFile(string[] input)
+        {
+            _isFileInput = true;
+            _fileHandler = new FileHandler(input[1]);
+            _outputHandler = new FileOutputHandler(FileHandler);
+
         }
         #endregion PrivateMethods
     }
